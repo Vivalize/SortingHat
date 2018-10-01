@@ -10,10 +10,10 @@ import java.io.*;
 boolean useFace = false;
 
 //Set to the port of the bluetooth device listed when running this
-int serialPort = 8;
+int serialPort = 9;
 
 //Turn to false if you don't want to connect to bluetooth
-boolean sendToArduino = false;
+boolean sendToArduino = true;
 
 Serial port;
 Amplitude amp;
@@ -36,7 +36,7 @@ void setup() {
   background(255);
   MyController = new ControlP5(this);
   MyController.addSlider("sensitivity",0,300,(int) sensitivity,20,20,10,100);
-  run("mkdir wubadubdub");
+  //run("mkdir wubadubdub");
   if (sendToArduino) {
     println("Available serial ports:");
     for(int i = 0; i < Serial.list().length; i++) {
