@@ -1,23 +1,15 @@
-//
-//  ScannerViewController.swift
-//  HM10 Serial
-//
-//  Created by Alex on 10-08-15.
-//  Copyright (c) 2015 Balancing Rock. All rights reserved.
-//
-
 import UIKit
 import CoreBluetooth
 
 final class ScannerViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, BluetoothSerialDelegate {
-
-//MARK: IBOutlets
+    
+    //MARK: IBOutlets
     
     @IBOutlet weak var tryAgainButton: UIBarButtonItem!
     @IBOutlet weak var tableView: UITableView!
     
     
-//MARK: Variables
+    //MARK: Variables
     
     /// The peripherals that have been discovered (no duplicates and sorted by asc RSSI)
     var peripherals: [(peripheral: CBPeripheral, RSSI: Float)] = []
@@ -29,23 +21,17 @@ final class ScannerViewController: UIViewController, UITableViewDataSource, UITa
     var progressHUD: MBProgressHUD?
     
     
-//MARK: Functions
+    //MARK: Functions
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        serial = BluetoothSerial(delegate: self)
-        
-        reloadView()
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(ScannerViewController.reloadView), name: NSNotification.Name(rawValue: "reloadStartViewController"), object: nil)
-        
         // tryAgainButton is only enabled when we've stopped scanning
         tryAgainButton.isEnabled = false
-
+        
         // remove extra seperator insets (looks better imho)
         tableView.tableFooterView = UIView(frame: CGRect.zero)
-
+        
         // tell the delegate to notificate US instead of the previous view if something happens
         serial.delegate = self
         
@@ -56,8 +42,9 @@ final class ScannerViewController: UIViewController, UITableViewDataSource, UITa
         
         // start scanning and schedule the time out
         serial.startScan()
+        Timer.scheduledTimer(timeInterval: 10, target: self, selector: #selector(ScannerViewController.scanTimeOut), userInfo: nil, repeats: false)
     }
-
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
@@ -95,7 +82,7 @@ final class ScannerViewController: UIViewController, UITableViewDataSource, UITa
     }
     
     
-//MARK: UITableViewDataSource
+    //MARK: UITableViewDataSource
     
     func numberOfSections(in tableView: UITableView) -> Int {
         return 1
@@ -114,7 +101,7 @@ final class ScannerViewController: UIViewController, UITableViewDataSource, UITa
     }
     
     
-//MARK: UITableViewDelegate
+    //MARK: UITableViewDelegate
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
@@ -131,7 +118,7 @@ final class ScannerViewController: UIViewController, UITableViewDataSource, UITa
     }
     
     
-//MARK: BluetoothSerialDelegate
+    //MARK: BluetoothSerialDelegate
     
     func serialDidDiscoverPeripheral(_ peripheral: CBPeripheral, RSSI: NSNumber?) {
         // check whether it is a duplicate
@@ -152,7 +139,7 @@ final class ScannerViewController: UIViewController, UITableViewDataSource, UITa
         }
         
         tryAgainButton.isEnabled = true
-                
+        
         let hud = MBProgressHUD.showAdded(to: view, animated: true)
         hud?.mode = MBProgressHUDMode.text
         hud?.labelText = "Failed to connect"
@@ -170,7 +157,7 @@ final class ScannerViewController: UIViewController, UITableViewDataSource, UITa
         hud?.mode = MBProgressHUDMode.text
         hud?.labelText = "Failed to connect"
         hud?.hide(true, afterDelay: 1.0)
-
+        
     }
     
     func serialIsReady(_ peripheral: CBPeripheral) {
@@ -193,15 +180,15 @@ final class ScannerViewController: UIViewController, UITableViewDataSource, UITa
         }
     }
     
-
-//MARK: IBActions
+    
+    //MARK: IBActions
     
     @IBAction func cancel(_ sender: AnyObject) {
         // go back
         serial.stopScan()
         dismiss(animated: true, completion: nil)
     }
-
+    
     @IBAction func tryAgain(_ sender: AnyObject) {
         // empty array an start again
         peripherals = []
