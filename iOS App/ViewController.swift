@@ -9,6 +9,7 @@ import ARKit
 import SceneKit
 import UIKit
 import CoreBluetooth
+import AVFoundation
 
 class ViewController: UIViewController, ARSessionDelegate, BluetoothSerialDelegate {
     
@@ -39,6 +40,8 @@ class ViewController: UIViewController, ARSessionDelegate, BluetoothSerialDelega
             contentUpdater.virtualFaceNode = nodeForContentType[selectedVirtualContent]
         }
     }
+    
+    var engine = AVAudioEngine()
 
     // MARK: - View Controller Life Cycle
 
@@ -66,6 +69,37 @@ class ViewController: UIViewController, ARSessionDelegate, BluetoothSerialDelega
 //        reloadView()
         
         NotificationCenter.default.addObserver(self, selector: #selector(ViewController.reloadView), name: NSNotification.Name(rawValue: "reloadStartViewController"), object: nil)
+        
+        
+        // Setup AVAudioSession
+        do {
+            try
+                AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayAndRecord, mode: AVAudioSessionModeSpokenAudio, options: [.defaultToSpeaker, .allowBluetooth])
+//                AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playAndRecord, mode: .spokenAudio, options: [.defaultToSpeaker, .allowBluetooth])
+            
+            let ioBufferDuration = 128.0 / 44100.0
+            
+            try AVAudioSession.sharedInstance().setPreferredIOBufferDuration(ioBufferDuration)
+            
+        } catch {
+            assertionFailure("AVAudioSession setup error: \(error)")
+        }
+        
+        // Setup engine and node instances
+        //        assert(engine.inputNode != nil)
+        let input = engine.inputNode
+        let output = engine.outputNode
+        let format = input.inputFormat(forBus: 0)
+        
+        // Connect nodes
+        engine.connect(input, to: output, format: format)
+        
+        // Start engine
+        do {
+            try engine.start()
+        } catch {
+            assertionFailure("AVAudioEngine start error: \(error)")
+        }
         
     }
     
