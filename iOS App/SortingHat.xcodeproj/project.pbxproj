@@ -145,7 +145,7 @@
 					3929C4871E89EC2C00E00B60 = {
 						CreatedOnToolsVersion = 9.0;
 						DevelopmentTeam = 2JGJGWDTGG;
-						LastSwiftMigration = 0900;
+						LastSwiftMigration = 1000;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -335,8 +335,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.ritachka.SortingHat;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
@@ -354,8 +353,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.ritachka.SortingHat;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
