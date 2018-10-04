@@ -65,20 +65,32 @@ class ViewController: UIViewController, ARSessionDelegate, BluetoothSerialDelega
         // Initialize Serial
         serial = BluetoothSerial(delegate: self)
         
-        // UI
-//        reloadView()
-        
         NotificationCenter.default.addObserver(self, selector: #selector(ViewController.reloadView), name: NSNotification.Name(rawValue: "reloadStartViewController"), object: nil)
-        
         
         // Setup AVAudioSession
         do {
             try
-                AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playAndRecord, mode: AVAudioSession.Mode(rawValue: convertFromAVAudioSessionMode(AVAudioSession.Mode.spokenAudio)), options: [.defaultToSpeaker, .allowBluetooth])
+                AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playAndRecord, mode: AVAudioSession.Mode.spokenAudio, options: [.defaultToSpeaker, .allowBluetoothA2DP])
+            
+            try AVAudioSession.sharedInstance().setActive(true)
+            
+            print(AVAudioSession.sharedInstance().currentRoute)
+            
+            
+            
+            
 //            print(AVAudioSession.sharedInstance().availableInputs)
             
 //            AVAudioSession.sharedInstance().setOutputDataSource(<#T##dataSource: AVAudioSessionDataSourceDescription?##AVAudioSessionDataSourceDescription?#>)
-            try AVAudioSession.sharedInstance().setPreferredInput(AVAudioSession.sharedInstance().availableInputs?[0])
+            
+            
+//            try AVAudioSession.sharedInstance().setPreferredInput(AVAudioSession.sharedInstance().availableInputs?[0])
+            
+            print("Listing all output sources")
+            print(AVAudioSession.sharedInstance().outputDataSources)
+            print("Done")
+            
+            
 //            print(AVAudioSession.sharedInstance().inputDataSources)
 //                AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playAndRecord, mode: .spokenAudio, options: [.defaultToSpeaker, .allowBluetooth])
             
@@ -107,9 +119,6 @@ class ViewController: UIViewController, ARSessionDelegate, BluetoothSerialDelega
             assertionFailure("AVAudioEngine start error: \(error)")
         }
         
-        print("Listing all output sources")
-        print(AVAudioSession.sharedInstance().outputDataSource)
-        print("Done")
         
     }
     
