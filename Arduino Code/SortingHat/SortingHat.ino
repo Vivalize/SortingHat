@@ -19,9 +19,15 @@ void setup() {
 void loop() {
   if (Serial.available() > 0) {
     int incomingSignal = Serial.read();
-    int featureID = incomingSignal >> (8-signalFeatureIDBits);
-    int featureVal = incomingSignal & (255 >> signalFeatureIDBits);
-    servos[featureID].write(featureVal);
+    
+    handleControlSignal(incomingSignal);
   }
 
 }
+
+void handleControlSignal(int incomingByte) {
+  int featureID = incomingSignal >> (8-signalFeatureIDBits);
+  int featureVal = incomingSignal & (255 >> signalFeatureIDBits);
+  servos[featureID].write(featureVal);
+}
+
