@@ -40,8 +40,6 @@ class ViewController: UIViewController, ARSessionDelegate, BluetoothSerialDelega
             contentUpdater.virtualFaceNode = nodeForContentType[selectedVirtualContent]
         }
     }
-    
-    var engine = AVAudioEngine()
 
     // MARK: - View Controller Life Cycle
 
@@ -67,58 +65,7 @@ class ViewController: UIViewController, ARSessionDelegate, BluetoothSerialDelega
         
         NotificationCenter.default.addObserver(self, selector: #selector(ViewController.reloadView), name: NSNotification.Name(rawValue: "reloadStartViewController"), object: nil)
         
-        // Setup AVAudioSession
-        do {
-            try
-                AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playAndRecord, mode: AVAudioSession.Mode.spokenAudio, options: [.defaultToSpeaker, .allowBluetoothA2DP])
-            
-            try AVAudioSession.sharedInstance().setActive(true)
-            
-            print(AVAudioSession.sharedInstance().currentRoute)
-            
-            
-            
-            
-//            print(AVAudioSession.sharedInstance().availableInputs)
-            
-//            AVAudioSession.sharedInstance().setOutputDataSource(<#T##dataSource: AVAudioSessionDataSourceDescription?##AVAudioSessionDataSourceDescription?#>)
-            
-            
-//            try AVAudioSession.sharedInstance().setPreferredInput(AVAudioSession.sharedInstance().availableInputs?[0])
-            
-            print("Listing all output sources")
-            print(AVAudioSession.sharedInstance().outputDataSources)
-            print("Done")
-            
-            
-//            print(AVAudioSession.sharedInstance().inputDataSources)
-//                AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playAndRecord, mode: .spokenAudio, options: [.defaultToSpeaker, .allowBluetooth])
-            
-            let ioBufferDuration = 128.0 / 44100.0
-            
-            try AVAudioSession.sharedInstance().setPreferredIOBufferDuration(ioBufferDuration)
-            
-            
-        } catch {
-            assertionFailure("AVAudioSession setup error: \(error)")
-        }
-        
-        // Setup engine and node instances
-        //        assert(engine.inputNode != nil)
-        let input = engine.inputNode
-        let output = engine.outputNode
-        let format = input.inputFormat(forBus: 0)
-        
-        // Connect nodes
-        engine.connect(input, to: output, format: format)
-        
-        // Start engine
-        do {
-            try engine.start()
-        } catch {
-            assertionFailure("AVAudioEngine start error: \(error)")
-        }
-        
+        startVoiceMirroring()
         
     }
     
@@ -176,6 +123,113 @@ class ViewController: UIViewController, ARSessionDelegate, BluetoothSerialDelega
     }
     
     // MARK: - Setup
+    
+    var engine = AVAudioEngine()
+//    var distortion = AVAudioUnitDistortion()
+//    var reverb = AVAudioUnitReverb()
+//    var audioBuffer = AVAudioPCMBuffer()
+    var delay = AVAudioUnitDelay()
+    var pitchControl = AVAudioUnitTimePitch()
+//    var bufferPlayer = AVAudioPlayerNode()
+    
+    func startVoiceMirroring() {
+        
+        //Restart Audio Engine
+        engine.stop()
+        engine.reset()
+        engine = AVAudioEngine()
+        
+        // Setup AVAudioSession
+        do {
+            try
+                AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playAndRecord, mode: AVAudioSession.Mode.spokenAudio, options: [.defaultToSpeaker, .allowBluetoothA2DP])
+            
+            let ioBufferDuration = 128.0 / 44100.0
+            try AVAudioSession.sharedInstance().setPreferredIOBufferDuration(ioBufferDuration)
+            
+            
+        } catch {
+            assertionFailure("AVAudioSession setup error: \(error)")
+        }
+        
+        let input = engine.inputNode
+        let format = input.inputFormat(forBus: 0)
+        
+//        input.installTap(onBus: 0, bufferSize: 4096, format: format) {
+//            (buffer : AVAudioPCMBuffer!, when : AVAudioTime!) in
+//
+//            do {
+//                self.bufferPlayer.scheduleBuffer(buffer, at: nil)
+//                self.bufferPlayer.play()
+//                print("IS it doign somethign?")
+////                try self.audioFile.write(from: buffer)
+//            } catch {
+//                print("error \(error.localizedDescription)")
+//
+//            }
+//
+//        }
+        
+//        //settings for reverb
+//        reverb.loadFactoryPreset(.mediumChamber)
+//        reverb.wetDryMix = 40 //0-100 range
+//        engine.attach(reverb)
+        
+//        delay.delayTime = 0.2 // 0-2 range
+//        engine.attach(delay)
+        
+        pitchControl.pitch = -500 //Rude man voice
+        pitchControl.rate = 1.5 //In 1.5 times faster
+        engine.attach(pitchControl)
+        
+        delay.delayTime = 0.5
+        delay.feedback = -1.0
+        engine.attach(delay)
+        
+//        bufferPlayer.volume = 1.0
+//        engine.attach(bufferPlayer)
+        
+//        //settings for distortion
+//        distortion.loadFactoryPreset(.drumsBitBrush)
+//        distortion.wetDryMix = 20 //0-100 range
+//        engine.attach(distortion)
+        
+        
+//        engine.connect(input, to: delay, format: format)
+//        engine.connect(delay, to: pitchControl, format: format)
+//        engine.connect(reverb, to: distortion, format: format)
+//        engine.connect(distortion, to: delay, format: format)
+//        engine.connect(pitchControl, to: delay, format: format)
+        
+        engine.connect(input, to: engine.mainMixerNode, format: format)
+        
+//        engine.connect(input, to: delay, format: format)
+//        engine.connect(delay, to: engine.mainMixerNode, format: format)
+        
+//        engine.connect(input, to: pitchControl, format: format)
+//        engine.connect(pitchControl, to: engine.mainMixerNode, format: format)
+        
+//        engine.connect(bufferPlayer, to: pitchControl, format: format)
+//        engine.connect(pitchControl, to: engine.mainMixerNode, format: format)
+//        engine.connect(bufferPlayer, to: engine.mainMixerNode, format: format)
+        
+
+//
+//        // Connect nodes
+//        engine.connect(input, to: pitchControl, format: format)
+//        engine.connect(pitchControl, to: engine.mainMixerNode, format: nil)
+////        engine.connect(mixer, to: output, format: nil)
+////        engine.connect(input, to: output, format: format)
+////        engine.connect(input, to: engine.mainMixerNode, format: format)
+        
+        // Start engine
+        do {
+            try engine.start()
+//            bufferPlayer.play()
+        } catch {
+            assertionFailure("AVAudioEngine start error: \(error)")
+        }
+    }
     
     /// - Tag: CreateARSCNFaceGeometry
     func createFaceGeometry() {
